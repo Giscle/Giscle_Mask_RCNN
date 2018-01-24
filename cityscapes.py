@@ -12,17 +12,6 @@ import cv2
 from config import Config
 import utils
 
-images = pickle.load(open("image_train.pickle", "rb"))
-annotations = pickle.load(open("ann_train.pickle", "rb"))
-labels = ['bicycle', 'bicyclegroup', 'bridge', 'building', 'bus', 'car',
-        'caravan', 'cargroup', 'dynamic', 'ego vehicle', 'fence', 'ground',
-          'guard rail', 'license plate', 'motorcycle', 'motorcyclegroup',
-          'out of roi', 'parking', 'person', 'persongroup', 'pole',
-          'polegroup', 'rail track', 'rectification border', 'rider',
-          'ridergroup', 'road', 'sidewalk', 'sky', 'static', 'terrain',
-          'traffic light', 'traffic sign', 'trailer', 'train', 'truck',
-          'truckgroup', 'tunnel', 'vegetation', 'wall']
-
 class CityscapesConfig(Config):
     """Configuration for training on the toy shapes dataset.
     Derives from the base Config class and overrides values specific
@@ -51,15 +40,15 @@ class CityscapesDataset(utils.Dataset):
     The images are generated on the fly. No file access required.
     """
 
+
     def load_cityscapes(self, source):
         """Generate the requested number of synthetic images.
         count: number of images to generate.
         height, width: the size of the generated images.
         """
         
-        images = pickle.load(open("image_{}.pickle".format(source), "rb"))
-        # shuffle = np.random.permutation(len(images))
-        # images = images[shuffle]
+        images = pickle.load(open("image_train.pickle", "rb"))
+        images = np.random.permutation(images)
         labels = ['bicycle', 'bicyclegroup', 'bridge', 'building', 'bus', 'car',
                   'caravan', 'cargroup', 'dynamic', 'ego vehicle', 'fence', 'ground',
                   'guard rail', 'license plate', 'motorcycle', 'motorcyclegroup',
