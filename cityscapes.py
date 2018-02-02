@@ -26,7 +26,7 @@ class CityscapesConfig(Config):
     IMAGES_PER_GPU = 1
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 40  # background + 3 shapes
+    NUM_CLASSES = 1 + 40  # background + 40 labels
     
     IMAGE_MIN_DIM = 1024
     IMAGE_MAX_DIM = 2048
