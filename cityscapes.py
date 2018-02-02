@@ -12,17 +12,6 @@ import cv2
 from config import Config
 import utils
 
-images = pickle.load(open("image_train.pickle", "rb"))
-annotations = pickle.load(open("ann_train.pickle", "rb"))
-labels = ['bicycle', 'bicyclegroup', 'bridge', 'building', 'bus', 'car',
-        'caravan', 'cargroup', 'dynamic', 'ego vehicle', 'fence', 'ground',
-          'guard rail', 'license plate', 'motorcycle', 'motorcyclegroup',
-          'out of roi', 'parking', 'person', 'persongroup', 'pole',
-          'polegroup', 'rail track', 'rectification border', 'rider',
-          'ridergroup', 'road', 'sidewalk', 'sky', 'static', 'terrain',
-          'traffic light', 'traffic sign', 'trailer', 'train', 'truck',
-          'truckgroup', 'tunnel', 'vegetation', 'wall']
-
 class CityscapesConfig(Config):
     """Configuration for training on the toy shapes dataset.
     Derives from the base Config class and overrides values specific
@@ -42,6 +31,13 @@ class CityscapesConfig(Config):
     IMAGE_MIN_DIM = 1024
     IMAGE_MAX_DIM = 2048
     
+    STEPS_PER_EPOCH = 500
+    VALIDATION_STEPS = 10
+    TRAIN_ROIS_PER_IMAGE = 512
+    LEARNING_RATE = 0.001
+    LEARNING_MOMENTUM = 0.9
+    
+    
 config = CityscapesConfig()
 config.display()
 
@@ -51,6 +47,7 @@ class CityscapesDataset(utils.Dataset):
     The images are generated on the fly. No file access required.
     """
 
+
     def load_cityscapes(self, source):
         """Generate the requested number of synthetic images.
         count: number of images to generate.
@@ -58,8 +55,7 @@ class CityscapesDataset(utils.Dataset):
         """
         
         images = pickle.load(open("image_{}.pickle".format(source), "rb"))
-        # shuffle = np.random.permutation(len(images))
-        # images = images[shuffle]
+        images = np.random.permutation(images)
         labels = ['bicycle', 'bicyclegroup', 'bridge', 'building', 'bus', 'car',
                   'caravan', 'cargroup', 'dynamic', 'ego vehicle', 'fence', 'ground',
                   'guard rail', 'license plate', 'motorcycle', 'motorcyclegroup',
@@ -69,7 +65,7 @@ class CityscapesDataset(utils.Dataset):
                   'traffic light', 'traffic sign', 'trailer', 'train', 'truck',
                   'truckgroup', 'tunnel', 'vegetation', 'wall']
         # Add classes
-        for i, class_name in enumerate(set(labels)):
+        for i, class_name in enumerate(labels):
             self.add_class("cityscapes", i + 1, class_name)
 
         # Add images
@@ -86,10 +82,10 @@ class CityscapesDataset(utils.Dataset):
             
     def load_mask(self, image_id):
         image_path = self.image_info[image_id]['path']
-        image_path = image_path.replace("leftImg8bit","gtFine")
-        image_path = image_path.replace(".png", "_polygons.json")
+        json_path = image_path.replace("leftImg8bit","gtFine")
+        json_path = json_path.replace(".png", "_polygons.json")
 
-        dct = json.load(open(image_path,'r'))
+        dct = json.load(open(json_path,'r'))
         num_instances = len(dct['objects'])
         
         width = 2048
